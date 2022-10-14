@@ -1,0 +1,231 @@
+swagger: '2.0'
+info:
+  description: User API
+  version: 1.0.0
+  title: User API
+
+schemes: [http]
+host: localhost
+basePath: /
+consumes: [application/json]
+produces: [application/json]
+
+tags:
+  - name: user
+    description: handle users
+  - name: monitoring
+    description: monitoring
+paths:
+  /mon/ping:
+    get:
+      tags: [monitoring]
+      summary: Health check
+      responses:
+        '200':
+          description: Health OK
+          schema:
+            properties:
+              status:
+                default: OK
+                type: string
+            type: object
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+  /v1/user:
+    post:
+      tags: [user]
+      summary: Add a user
+      operationId: UserCreate
+      parameters:
+        - in: body
+          name: user
+          description: User to create
+          required: true
+          schema:
+            $ref: '#/definitions/PostCreateUserParams'
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags: [user]
+      summary: get a list of user
+      operationId: UserList
+      parameters:
+        - name: first_name
+          in: query
+          type: string
+        - name: last_name
+          in: query
+          type: string
+        - name: nickname
+          in: query
+          type: string
+        - name: email
+          in: query
+          type: string
+        - name: country
+          in: query
+          type: string
+        - name: page
+          in: query
+          type: integer
+          format: int64
+        - name: per_page
+          in: query
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+              $ref: '#/definitions/GetUserListResponse'
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+  /v1/user/{userId}:
+    put:
+      tags: [user]
+      summary: Update an existing user
+      operationId: UserUpdate
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user
+          required: true
+          type: string
+        - in: body
+          name: user
+          description: user data
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: Updated successfully
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags: [user]
+      summary: Get user by it's ID
+      operationId: UserGet
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          type: string
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags: [user]
+      summary: Deletes a user
+      description: ''
+      operationId: UserDelete
+      parameters:
+        - name: userId
+          in: path
+          description: User id to delete
+          required: true
+          type: string
+      responses:
+        204:
+          description: Deleted successfully
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Error:
+    properties:
+      code:
+        format: int64
+        type: integer
+      message:
+        type: string
+    type: object
+  User:
+    type: object
+    required:
+      - first_name
+      - last_name
+      - email
+    properties:
+      id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      nickname:
+        type: string
+      email:
+        type: string
+      country:
+        type: string
+      created_at:
+        format: date-time
+        type: string
+      updated_at:
+        format: date-time
+        type: string
+  PostCreateUserParams:
+    type: object
+    required:
+      - first_name
+      - last_name
+      - email
+      - password
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      nickname:
+        type: string
+      email:
+        type: string
+      country:
+        type: string
+      created_at:
+        format: date-time
+        type: string
+      updated_at:
+        format: date-time
+        type: string
+      password:
+        type: string
+  GetUserListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/User'
+        type: array
+      meta:
+        properties:
+          this:
+            type: string
+          total:
+            type: string
+    required:
+      - users
+    type: object

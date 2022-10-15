@@ -8,7 +8,7 @@
 
 * Spawn a swagger UI for API from docker-compose
 * No test on kafka
-* listing users does not use API parameters (except per_page and page)
+* listing users does not return meta object (this + total)
 
 ### Build application
 
@@ -49,6 +49,6 @@ To notify the whole IS about a change on users, i decided to go with kafka to ha
 
 * Storing configuration/sensible secrets with a secret management solution (Vault for example).
 
-* Storing application logs inside ElasticSearch/OpenSearch solution (for example) to be able to monitor the system (then crafting monitoring application that request our elasticsearch/opensearch cluster or using application like ElastAlert).
+* Sending application logs inside ElasticSearch/OpenSearch solution (for example) to be able to monitor the system (then crafting monitoring application that request our elasticsearch/opensearch cluster or using application like ElastAlert). It could be usefull to compute response time for example.
 
-* Using a context environment where you can set a request id that could be forwarded to each microservices communicating between each other. It will helps to easier track what's happened on a specific workflow or action (by getting all microservices involved).
+* Using a context environment where you can set a unique id that could be forwarded to each microservices communicating between each other. It will helps to easier track what's happened on a specific workflow or action (by getting all microservices involved).

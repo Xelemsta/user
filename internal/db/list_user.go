@@ -19,23 +19,47 @@ func GetUsers(userParams *User, params *Params) ([]*User, error) {
 		}
 	}
 
-	// XXX: add filter from userParams
 	// XXX: count rows for pagination purposes
 
-	selectStatement, err := dbh.Prepare(
-		`SELECT "country", "created_at", "email", "first_name", "id", "last_name", "nickname", "updated_at"
-			FROM "user"
-			ORDER BY "id" DESC
-			OFFSET $1 LIMIT $2`,
-	)
+	return buildAndExecQuery(userParams, limit, offset)
+}
+
+func buildAndExecQuery(userParams *User, limit int64, offset int64) ([]*User, error) {
+	var whereClause string
+	var values []interface{}
+	if userParams != nil {
+		if userParams.Country != "" {
+			whereClause = ` WHERE "country" = $1`
+			values = append(values, userParams.Country)
+		}
+	}
+
+	values = append(values, limit, offset)
+
+	rootQuery := `SELECT
+		"country", "created_at", "email", "first_name", "id", "last_name", "nickname", "updated_at"
+		FROM "user"`
+
+	if whereClause != "" {
+		rootQuery += whereClause + ` ORDER BY "id" DESC LIMIT $2 OFFSET $3`
+	} else {
+		rootQuery += ` ORDER BY "id" DESC LIMIT $1 OFFSET $2`
+	}
+
+	stmt, err := dbh.Prepare(rootQuery)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := selectStatement.Query(offset, limit)
+	rows, err := stmt.Query(values...)
 	if err != nil {
 		return nil, err
 	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+
 	defer rows.Close()
 
 	users := make([]*User, 0)
@@ -56,10 +80,6 @@ func GetUsers(userParams *User, params *Params) ([]*User, error) {
 			return nil, err
 		}
 		users = append(users, &user)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
 	}
 
 	return users, nil

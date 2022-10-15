@@ -34,6 +34,7 @@ func TestListUser(t *testing.T) {
 			Email:     &email1,
 			Password:  &passwd1,
 			Nickname:  "nickname1",
+			Country:   "FR",
 		},
 		{
 			FirstName: &firstname2,
@@ -41,6 +42,7 @@ func TestListUser(t *testing.T) {
 			Email:     &email2,
 			Password:  &passwd2,
 			Nickname:  "nickname2",
+			Country:   "DE",
 		},
 	}
 
@@ -99,6 +101,38 @@ func TestListUser(t *testing.T) {
 
 	t.Run("list_user_per_page_1", func(t *testing.T) {
 		ta.Get("/v1/user?per_page=1").CmpStatus(http.StatusOK).
+			CmpJSONBody(
+				td.Code(func(b json.RawMessage) error {
+					var userListResponse models.GetUserListResponse
+					errJSON := json.Unmarshal(b, &userListResponse)
+					if errJSON != nil {
+						return errJSON
+					}
+
+					td.CmpLen(t, userListResponse.Users, 1)
+					return nil
+				}),
+			)
+	})
+
+	t.Run("list_user_per_page_5_country_FR", func(t *testing.T) {
+		ta.Get("/v1/user?per_page=5&country=FR").CmpStatus(http.StatusOK).
+			CmpJSONBody(
+				td.Code(func(b json.RawMessage) error {
+					var userListResponse models.GetUserListResponse
+					errJSON := json.Unmarshal(b, &userListResponse)
+					if errJSON != nil {
+						return errJSON
+					}
+
+					td.CmpLen(t, userListResponse.Users, 1)
+					return nil
+				}),
+			)
+	})
+
+	t.Run("list_user_per_page_5_country_DE", func(t *testing.T) {
+		ta.Get("/v1/user?per_page=5&country=DE").CmpStatus(http.StatusOK).
 			CmpJSONBody(
 				td.Code(func(b json.RawMessage) error {
 					var userListResponse models.GetUserListResponse

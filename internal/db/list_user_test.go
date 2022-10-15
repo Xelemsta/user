@@ -107,4 +107,32 @@ func TestGetUsers(t *testing.T) {
 		td.CmpNil(t, err)
 		td.CmpLen(t, users, 0)
 	})
+
+	t.Run("list_user_ok_limit_5_country_FR", func(t *testing.T) {
+		limit := int64(5)
+
+		user := db.User{
+			Country: "FR",
+		}
+
+		users, err := db.GetUsers(&user, &db.Params{
+			Limit: &limit,
+		})
+		td.CmpNil(t, err)
+		td.CmpLen(t, users, 2)
+	})
+
+	t.Run("list_user_ok_limit_5_country_DE", func(t *testing.T) {
+		limit := int64(5)
+
+		user := db.User{
+			Country: "DE",
+		}
+
+		users, err := db.GetUsers(&user, &db.Params{
+			Limit: &limit,
+		})
+		td.CmpNil(t, err)
+		td.CmpLen(t, users, 1)
+	})
 }

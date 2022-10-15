@@ -23,11 +23,7 @@ func NewListUserHandler() user.UserListHandler {
 
 // Handle implements GET /user.
 func (impl *listUserImpl) Handle(params user.UserListParams) middleware.Responder {
-	dbUserParams := &db.User{
-		Email:     params.Email,
-		FirstName: params.FirstName,
-		LastName:  params.LastName,
-	}
+	dbUserParams := &db.User{}
 
 	if params.Country != nil {
 		dbUserParams.Country = *params.Country
